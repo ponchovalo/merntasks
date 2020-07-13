@@ -11,15 +11,13 @@ import {FORMULARIO_PROYECTO,
         ELIMINAR_PROYECTO
 } from '../../types';
 
+import clienteAxios from '../../config/axios'
+
 
 
 const ProyectoState = props => {
 
-    const proyectos = [
-        {id: 1, nombre: 'Tienda Vitual'},
-        {id: 2, nombre: 'Intranet'},
-        {id: 3, nombre: 'Diseño de sitio web'}
-    ];
+    
 
     const initialState = {
         proyectos: [],
@@ -39,22 +37,30 @@ const ProyectoState = props => {
     }
 
     // Obtener los proyectos
-    const obtenerProyectos = () => {
-        dispatch({
-            type: OBTENER_PROYECTOS,
-            payload: proyectos
-        })
+    const obtenerProyectos = async () => {
+        try {
+            const resultado = await clienteAxios.get('api/proyectos');
+            dispatch({
+                type: OBTENER_PROYECTOS,
+                payload: resultado.data.proyectos
+            })
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     // Agregar nuevo proyecto
-    const agregarProyecto = proyecto => {
-        proyecto.id = uuidv4();
+    const agregarProyecto = async proyecto => {
 
-        //insertar el proyecto en el state
-        dispatch({
-            type: AGREGAR_PROYECTO,
-            payload: proyecto
-        })
+        try {
+            const resultado = await clienteAxios.post('/api/proyectos', proyecto);
+            dispatch({
+                type: AGREGAR_PROYECTO,
+                payload: resultado.data
+            })
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     // Valida el formulario  por errores
@@ -73,11 +79,16 @@ const ProyectoState = props => {
     }
 
     // Eliminar un proyecto
-    const eliminarProyecto = proyectoId => {
-        dispatch({
-            type: ELIMINAR_PROYECTO,
-            payload: proyectoId
-        })
+    const eliminarProyecto = async proyectoId => {
+        try {
+            await clienteAxios.delete(`/api/proyectos/${proyectoId}`);
+            dispatch({
+                type: ELIMINAR_PROYECTO,
+                payload: proyectoId
+            })
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     return (
